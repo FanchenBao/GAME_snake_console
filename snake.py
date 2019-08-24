@@ -40,20 +40,25 @@ def display_game_over(screen, top: int, lef: int) -> None:
         screen.addstr(*coord, msg[i])
 
 
-def move_snake(snake: List[Tuple[int, int]], direction: Tuple[int, int]) -> List[Tuple[int, int]]:
-    """ Change the snake head position based on direction """
-    return [(snake[0][0] + direction[0], snake[0][1] + direction[1])] + snake[:-1]
+def move_snake(snake: List[Tuple[int, int]], direction: Tuple[int, int], eaten: bool) -> List[Tuple[int, int]]:
+    """ Change the snake head position based on direction.
+        If eaten is true (snake has eaten the food), do not cut tail
+    """
+    new_head = [(snake[0][0] + direction[0], snake[0][1] + direction[1])]
+    new_body = snake[:] if eaten else snake[:-1]
+    return new_head + new_body
 
 
 def create_food(top: int, bot: int, lef: int, rig: int, snake: List[Tuple[int, int]]) -> Tuple[int, int]:
     """ Create a food item randomly in the boundaries but not on snake """
-    food = (randint(top + 1, bot - 1), choice(range(lef + 2, rig)))
+    # Note the scale up in hori
+    food = (randint(top + 1, bot - 1), choice(range(lef + 2, rig, 2)))
     return food if food not in snake else create_food(top, bot, lef, rig, snake)
 
 
-def eat_food(snake: List[Tuple[int, int]], food: Tuple[int, int]):
+def eat_food(snake: List[Tuple[int, int]], food: Tuple[int, int]) -> bool:
     """ Check whether the snake has eaten the food """
-    return ([food] + snake[:], True) if snake[0] == food else (snake[:], False)
+    return snake[0] == food
 
 
 def game_over(snake: List[Tuple[int, int]], boundaries: Dict[str, List[Tuple[int, int]]]) -> bool:
@@ -90,14 +95,17 @@ def main(screen):
     while True:  # game loop
         screen.erase()
 
+        # eat food
+        eaten = eat_food(snake, food)
+
         # get direction from user arrowkey input
         direction = directions.get(screen.getch(), direction)
         # move snake accordingly
-        snake = move_snake(snake, direction)
-        # eat food
-        snake, eaten = eat_food(snake, food)
+        snake = move_snake(snake, direction, eaten)
 
         display_boundaries(screen, boundaries)
+        if eaten:
+            food = create_food(top, bot, lef, rig, snake)
         display_food(screen, food)
         display_snake(screen, snake)
         display_length(screen, top, rig, len(snake))
@@ -109,7 +117,7 @@ def main(screen):
             time.sleep(1000)
 
         # speed of snake
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 
 if __name__ == '__main__':
