@@ -3,6 +3,7 @@ from typing import *
 import curses
 import time
 from functools import reduce
+from random import randint, choice
 
 
 def display_snake(screen, snake: List[Tuple[int, int]]) -> None:
@@ -20,6 +21,18 @@ def display_boundaries(screen, boundaries: Dict[str, List[Tuple[int, int]]]) -> 
         screen.addstr(*coord, '|')
 
 
+def display_food(screen, food: Tuple[int, int]) -> None:
+    """ Display food """
+    screen.addstr(*food, '#')
+
+
+def display_length(screen, top: int, rig: int, length: int) -> None:
+    """ Display length of snake on top right corner """
+    msg = f"Current Snake Length: {length}"
+    for i, coord in enumerate((top - 1, j) for j in range(rig - len(msg), rig)):
+        screen.addstr(*coord, msg[i])
+
+
 def display_game_over(screen, top: int, lef: int) -> None:
     """ Display game over message """
     msg = "Game Over. Press 'ctl + c' to exist."
@@ -27,12 +40,24 @@ def display_game_over(screen, top: int, lef: int) -> None:
         screen.addstr(*coord, msg[i])
 
 
-def move_snake(screen, snake: List[Tuple[int, int]], direction: Tuple[int, int]) -> List[Tuple[int, int]]:
+def move_snake(snake: List[Tuple[int, int]], direction: Tuple[int, int]) -> List[Tuple[int, int]]:
     """ Change the snake head position based on direction """
     return [(snake[0][0] + direction[0], snake[0][1] + direction[1])] + snake[:-1]
 
 
+def create_food(top: int, bot: int, lef: int, rig: int, snake: List[Tuple[int, int]]) -> Tuple[int, int]:
+    """ Create a food item randomly in the boundaries but not on snake """
+    food = (randint(top + 1, bot - 1), choice(range(lef + 2, rig)))
+    return food if food not in snake else create_food(top, bot, lef, rig, snake)
+
+
+def eat_food(snake: List[Tuple[int, int]], food: Tuple[int, int]):
+    """ Check whether the snake has eaten the food """
+    return ([food] + snake[:], True) if snake[0] == food else (snake[:], False)
+
+
 def game_over(snake: List[Tuple[int, int]], boundaries: Dict[str, List[Tuple[int, int]]]) -> bool:
+    """ Check whether game is over: snake head touches its body or boundaries """
     return snake[0] in snake[1:] + reduce(lambda x, y: x + y, boundaries.values())
 
 
@@ -49,8 +74,7 @@ def main(screen):
         'rig': [(i, rig) for i in range(top, bot + 1)]}
 
     # snake initial position, (row, col) or (y, x). Notice hori scaling up
-    length = 20
-    snake = [((top + bot) // 2, i) for i in reversed(range(lef, lef + length, 2))]
+    snake = [((top + bot) // 2, i) for i in reversed(range(lef, lef + 20, 2))]
 
     directions = {
         curses.KEY_UP: (-1, 0),
@@ -60,7 +84,8 @@ def main(screen):
     }
     direction = directions[curses.KEY_RIGHT]  # default direction
 
-    # initial food
+    # initial food, not colliding with initial snake
+    food = create_food(top, bot, lef, rig, snake)
 
     while True:  # game loop
         screen.erase()
@@ -68,10 +93,14 @@ def main(screen):
         # get direction from user arrowkey input
         direction = directions.get(screen.getch(), direction)
         # move snake accordingly
-        snake = move_snake(screen, snake, direction)
+        snake = move_snake(snake, direction)
+        # eat food
+        snake, eaten = eat_food(snake, food)
 
         display_boundaries(screen, boundaries)
+        display_food(screen, food)
         display_snake(screen, snake)
+        display_length(screen, top, rig, len(snake))
         screen.refresh()
 
         if game_over(snake, boundaries):
