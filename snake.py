@@ -38,7 +38,7 @@ def main(screen):
 
     # snake initial position, (row, col) or (y, x)
     length = 20
-    snake = [((top + bot) // 2, i) for i in reversed(range(lef, lef + length))]
+    snake = [((top + bot) // 2, i) for i in reversed(range(lef, lef + length, 2))]
 
     directions = {
         curses.KEY_UP: (-1, 0),
