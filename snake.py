@@ -1,8 +1,4 @@
 #! /usr/bin/env python3
-# from typing import *
-# from time import time
-# beg = time()
-
 from typing import *
 import curses
 import time
@@ -47,8 +43,8 @@ def main(screen):
     directions = {
         curses.KEY_UP: (-1, 0),
         curses.KEY_DOWN: (1, 0),
-        curses.KEY_LEFT: (0, -1),
-        curses.KEY_RIGHT: (0, 1),
+        curses.KEY_LEFT: (0, -2),  # hori need to scale up to match vert
+        curses.KEY_RIGHT: (0, 2),
     }
     direction = directions[curses.KEY_RIGHT]  # default direction
 
@@ -70,4 +66,3 @@ def main(screen):
 
 if __name__ == '__main__':
     curses.wrapper(main)
-# print("\nTime: {}".format(time() - beg))
