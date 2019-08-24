@@ -2,6 +2,7 @@
 from typing import *
 import curses
 import time
+from functools import reduce
 
 
 def display_snake(screen, snake: List[Tuple[int, int]]) -> None:
@@ -11,7 +12,7 @@ def display_snake(screen, snake: List[Tuple[int, int]]) -> None:
         screen.addstr(*segment, '*')
 
 
-def display_boundaries(screen, boundaries: Dict[str, List[int]]) -> None:
+def display_boundaries(screen, boundaries: Dict[str, List[Tuple[int, int]]]) -> None:
     """ Draw snake on the screen """
     for coord in boundaries['top'] + boundaries['bot']:
         screen.addstr(*coord, '-')
@@ -19,9 +20,20 @@ def display_boundaries(screen, boundaries: Dict[str, List[int]]) -> None:
         screen.addstr(*coord, '|')
 
 
-def move(screen, snake: List[Tuple[int, int]], direction: Tuple[int, int]) -> List[Tuple[int, int]]:
+def display_game_over(screen, top: int, lef: int) -> None:
+    """ Display game over message """
+    msg = "Game Over. Press 'ctl + c' to exist."
+    for i, coord in enumerate((top - 1, j) for j in range(lef, lef + len(msg))):
+        screen.addstr(*coord, msg[i])
+
+
+def move_snake(screen, snake: List[Tuple[int, int]], direction: Tuple[int, int]) -> List[Tuple[int, int]]:
     """ Change the snake head position based on direction """
-    return [tuple(sum(coord) for coord in zip(snake[0], direction))] + snake[:-1]
+    return [(snake[0][0] + direction[0], snake[0][1] + direction[1])] + snake[:-1]
+
+
+def game_over(snake: List[Tuple[int, int]], boundaries: Dict[str, List[Tuple[int, int]]]) -> bool:
+    return snake[0] in snake[1:] + reduce(lambda x, y: x + y, boundaries.values())
 
 
 def main(screen):
@@ -36,7 +48,7 @@ def main(screen):
         'lef': [(i, lef) for i in range(top, bot + 1)],
         'rig': [(i, rig) for i in range(top, bot + 1)]}
 
-    # snake initial position, (row, col) or (y, x)
+    # snake initial position, (row, col) or (y, x). Notice hori scaling up
     length = 20
     snake = [((top + bot) // 2, i) for i in reversed(range(lef, lef + length, 2))]
 
@@ -48,17 +60,24 @@ def main(screen):
     }
     direction = directions[curses.KEY_RIGHT]  # default direction
 
+    # initial food
+
     while True:  # game loop
         screen.erase()
 
         # get direction from user arrowkey input
         direction = directions.get(screen.getch(), direction)
         # move snake accordingly
-        snake = move(screen, snake, direction)
+        snake = move_snake(screen, snake, direction)
 
         display_boundaries(screen, boundaries)
         display_snake(screen, snake)
         screen.refresh()
+
+        if game_over(snake, boundaries):
+            display_game_over(screen, top, lef)
+            screen.refresh()
+            time.sleep(1000)
 
         # speed of snake
         time.sleep(0.1)
