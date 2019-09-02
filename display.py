@@ -29,7 +29,7 @@ class Display:
         self.display_char('@', [snake_[0]])
         self.display_char('*', snake_[1:])
 
-    def snake_length(self, msg: str) -> None:
+    def score(self, msg: str) -> None:
         """
         :param msg: information about how long the snake has become, serving as a rudimentary scoring system
         :return: None, side-effect: display a message about current snake length on screen

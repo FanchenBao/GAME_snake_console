@@ -7,6 +7,7 @@ import snake
 import food
 from display import Display
 import game_over
+from settings import Settings
 
 
 def main(screen):
@@ -14,11 +15,11 @@ def main(screen):
         curses.curs_set(0)  # hide cursor
         screen.nodelay(True)  # Don't block I/O calls
 
-        # boundaries, within which snakes can move
-        boundaries = Boundaries()
-
-        # initialize snake
-        snake_ = snake.initialize(boundaries, 10)
+        settings = Settings()  # game settings
+        boundaries = Boundaries()  # boundaries, within which snakes can move
+        snake_ = snake.initialize(boundaries, settings.init_snake_size)  # initialize snake
+        food_ = food.create(boundaries, snake_)  # initial food
+        display = Display(boundaries, screen)  # initialize display
 
         directions = {
             curses.KEY_UP: (-1, 0),
@@ -28,12 +29,6 @@ def main(screen):
         }
         direction = directions[curses.KEY_RIGHT]  # default direction
 
-        # initial food
-        food_ = food.create(boundaries, snake_)
-
-        # initialize display
-        display = Display(boundaries, screen)
-
         while True:  # game loop
             screen.erase()
 
@@ -41,6 +36,8 @@ def main(screen):
             eaten = snake.eat_food(snake_, food_)
             if eaten:
                 food_ = food.create(boundaries, snake_)
+                settings.snake_size_up()
+                settings.lvl_up()
 
             # get direction from user arrow key input
             direction = directions.get(screen.getch(), direction)
@@ -51,7 +48,7 @@ def main(screen):
             display.boundaries()
             display.food(food_)
             display.snake(snake_)
-            display.snake_length(f"Current Snake Length: {len(snake_)}")
+            display.score(f"Current score: {settings.score()}")
             screen.refresh()
 
             if game_over.check(snake_, boundaries):
@@ -62,7 +59,7 @@ def main(screen):
                 break
 
             # speed of snake
-            time.sleep(0.1)
+            time.sleep(0.1 / settings.speed)
 
     game()
 
