@@ -11,6 +11,6 @@ Upon game over, a simple message is shown on the upper left corner of the game d
 
 
 # Usage
-* Clone this repo: `git clone ...`
-* Move to the repo folder: `cd `
+* Clone this repo: `git clone https://github.com/FanchenBao/GAME_snake_console.git`
+* Move to the repo folder: `cd GAME_snake_console`
 * Run command: `python3 main.py`
