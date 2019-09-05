@@ -8,7 +8,7 @@ A crude scoring system is included and current score displayed on the upper righ
 Upon game over, a simple message is shown on the upper left corner of the game display, letting the player choose either to play again or quit the game.
 
 # Game Demo
-
+![GAME_snake_console demo](https://media.giphy.com/media/ZFEEKtUkBJj2CZqA6y/giphy.gif "GAME_snake_console demo")
 
 # Usage
 * Clone this repo: `git clone https://github.com/FanchenBao/GAME_snake_console.git`
