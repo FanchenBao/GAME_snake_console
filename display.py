@@ -31,12 +31,23 @@ class Display:
 
     def score(self, msg: str) -> None:
         """
-        :param msg: information about how long the snake has become, serving as a rudimentary scoring system
-        :return: None, side-effect: display a message about current snake length on screen
+        :param msg: information about current score
+        :return: None, side-effect: display score on screen
         """
         self.display_msg(
             msg,
             [(self.bounds.limits['top'] - 1, j)
+             for j in range(self.bounds.limits['right'] - len(msg), self.bounds.limits['right'])]
+        )
+
+    def high_score(self, msg: str) -> None:
+        """
+        :param msg: information about the highest score for the entire playing session
+        :return: None, side-effect: display highest score on screen
+        """
+        self.display_msg(
+            msg,
+            [(self.bounds.limits['top'] - 2, j)
              for j in range(self.bounds.limits['right'] - len(msg), self.bounds.limits['right'])]
         )
 

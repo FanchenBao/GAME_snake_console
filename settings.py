@@ -4,10 +4,16 @@ class Settings:
         # static settings, immutable once game starts
         self.init_snake_size: int = 10  # initial size of the snake
         self.init_speed: int = 1  # initial snake speed
-        self.speed_up_factor: int = 1.5  # fold change in speed after level up
+        self.speed_up_factor: int = 1.2  # fold change in speed after level up
         self.lvl_up_each: int = 5  # every 5 snake size increase, level up
+        self.high_score: int = 0
 
         # dynamic settings, mutable
+        self.lvl: int = 1
+        self.snake_size: int = self.init_snake_size
+        self.speed: int = self.init_speed
+
+    def reset_dynamic_settings(self) -> None:
         self.lvl: int = 1
         self.snake_size: int = self.init_snake_size
         self.speed: int = self.init_speed
@@ -21,4 +27,7 @@ class Settings:
         self.snake_size += 1
 
     def score(self) -> int:
-        return self.snake_size * self.lvl
+        return (self.snake_size - self.init_snake_size) * self.lvl
+
+    def update_high_score(self) -> int:
+        self.high_score = max(self.high_score, self.score())

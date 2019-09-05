@@ -11,11 +11,13 @@ from settings import Settings
 
 
 def main(screen):
+    settings = Settings()  # game settings
+
     def game() -> None:
         curses.curs_set(0)  # hide cursor
         screen.nodelay(True)  # Don't block I/O calls
+        settings.reset_dynamic_settings()
 
-        settings = Settings()  # game settings
         boundaries = Boundaries()  # boundaries, within which snakes can move
         snake_ = snake.initialize(boundaries, settings.init_snake_size)  # initialize snake
         food_ = food.create(boundaries, snake_)  # initial food
@@ -49,9 +51,12 @@ def main(screen):
             display.food(food_)
             display.snake(snake_)
             display.score(f"Current score: {settings.score()}")
+            if settings.high_score:
+                display.high_score(f"Highest score: {settings.high_score}")
             screen.refresh()
 
             if game_over.check(snake_, boundaries):
+                settings.update_high_score()
                 display.game_over("Game Over. Press 'p' to play again or 'q' to quit.")
                 screen.refresh()
                 if game_over.restart(screen):
