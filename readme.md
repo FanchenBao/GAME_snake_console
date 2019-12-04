@@ -13,7 +13,12 @@ Upon game over, a simple message is shown on the upper left corner of the game d
 # Usage
 * Clone this repo: `git clone https://github.com/FanchenBao/GAME_snake_console.git`
 * Move to the repo folder: `cd GAME_snake_console`
+* Maximize your console window
 * Run command: `python3 main.py`
 
 # High Score
 Highest score I have achieved so far is `450`
+
+# Troubleshoot
+## `_curses.error: addwstr() returned ERR`
+This error occurs because the program tries to print characters outside the boundary of the current console window. To resolve this issue, make sure you **maximize your console** before running the game.
